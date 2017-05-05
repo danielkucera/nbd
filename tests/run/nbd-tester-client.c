@@ -608,6 +608,7 @@ int setup_inet_connection(gchar * hostname, int port, gchar * name,
 	struct hostent *host;
 	struct sockaddr_in addr;
 
+	g_message("Preparing connection");
 	sock = 0;
 	if (ctype < CONNECTION_TYPE_CONNECT)
 		goto end;
@@ -616,6 +617,7 @@ int setup_inet_connection(gchar * hostname, int port, gchar * name,
 		goto err;
 	}
 	setmysockopt(sock);
+	g_message("Looking up host");
 	if (!(host = gethostbyname(hostname))) {
 		strncpy(errstr, hstrerror(h_errno), errstr_len);
 		goto err_open;
@@ -627,7 +629,9 @@ int setup_inet_connection(gchar * hostname, int port, gchar * name,
 		strncpy(errstr, strerror(errno), errstr_len);
 		goto err_open;
 	}
+	g_message("Connected");
 	sock = setup_connection_common(sock, name, ctype, serverflags, testflags);
+	g_message("Negotiated");
 	goto end;
 err_open:
 	close(sock);
@@ -1816,6 +1820,7 @@ int main(int argc, char **argv)
 	if (!tlshostname && hostname)
 		tlshostname = g_strdup(hostname);
 
+	g_message("Starting test");
 	if (test(hostname, unixsock, (int)p, name, sock, FALSE, TRUE, testflags)
 	    < 0) {
 		g_warning("Could not run test: %s", errstr);
